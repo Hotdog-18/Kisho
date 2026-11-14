@@ -6,17 +6,33 @@
 <title>KISHO 棋匠</title>
 <meta name="description" content="合言葉の部屋で友達と指せる将棋サイト。AIとの練習、棋譜の振り返り、KRSレーティング付き。">
 <meta name="theme-color" content="#243b53">
-<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Cpath d='M32 3 54 16 60 61H4L10 16Z' fill='%23dcae5c' stroke='%23243b53' stroke-width='4' stroke-linejoin='round'/%3E%3Ctext x='32' y='47' font-size='30' font-weight='800' text-anchor='middle' fill='%23243b53' font-family='serif'%3E匠%3C/text%3E%3C/svg%3E">
+<link rel="icon" type="image/svg+xml" href="assets/logo.svg">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link href="https://fonts.googleapis.com/css2?family=Shippori+Mincho+B1:wght@500;800&family=Yuji+Syuku&family=Zen+Antique&family=Zen+Kaku+Gothic+New:wght@400;500;700&display=swap" rel="stylesheet">
 <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <filter id="sealRough" x="-6%" y="-6%" width="112%" height="112%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.04" numOctaves="2" seed="4" result="n"/>
+      <feDisplacementMap in="SourceGraphic" in2="n" scale="2.6"/>
+    </filter>
+    <symbol id="seal" viewBox="0 0 100 100">
+      <g filter="url(#sealRough)">
+        <rect x="5" y="5" width="90" height="90" rx="6" fill="#c43d22"/>
+        <rect x="10.5" y="10.5" width="79" height="79" rx="3" fill="none" stroke="#eef1f3" stroke-width="1.4" opacity=".85"/>
+        <text x="50" y="46" text-anchor="middle" dominant-baseline="central" font-family="'Yuji Syuku','Yu Mincho','Noto Serif CJK JP',serif" font-size="66" fill="#eef1f3">匠</text>
+      </g>
+    </symbol>
+  </defs>
+</svg>
+
 
 <header class="top">
   <button class="logo" id="logoBtn" aria-label="ホームへ">
-    <span class="logo-k">棋匠</span><span class="logo-e">KISHO</span>
+    <svg class="logo-seal" viewBox="0 0 100 100" aria-hidden="true"><use href="#seal"/></svg><span class="logo-k">棋匠</span><span class="logo-e">KISHO</span>
   </button>
   <div class="top-right">
     <button class="me-chip" id="meChip" title="プロフィールとKRS"></button>
@@ -30,7 +46,7 @@
   <!-- ホーム -->
   <section id="home" class="screen">
     <div class="hero">
-      <h1 class="hero-logo" aria-label="棋匠 KISHO"><span class="hero-k">棋匠</span><span class="hero-e">KISHO</span></h1>
+      <h1 class="hero-logo" aria-label="棋匠 KISHO"><svg class="hero-seal" viewBox="0 0 100 100" aria-hidden="true"><use href="#seal"/></svg><span class="hero-e">KISHO</span></h1>
       <p class="hero-sub">友達と指す将棋。合言葉を伝えるだけで、すぐ始められる。</p>
     </div>
 
