@@ -131,11 +131,22 @@
     c.className = 'cell'; c.setAttribute('role', 'gridcell');
     board.appendChild(c); cells.push(c);
   }
-  function pieceEl(p) {
+  // 駒: 本物の将棋駒に近い五角形 (肩が低く、底が広い)。字は駒の中心に置く
+  function pieceEl(p, setId) {
     const t = p > 0 ? p : -p, side = p > 0 ? 0 : 1;
+    const sid = setId || settings.pieceSet;
+    const g = T.glyph(t, side, sid), letters = (T.PIECE_SETS.find((x) => x.id === sid) || {}).glyph === 'letters';
     const el = document.createElement('div');
-    el.className = 'piece' + (t >= 9 && t !== 13 && t !== 14 ? ' pro' : t >= 9 ? ' pro' : '');
-    el.innerHTML = '<div class="pface"><i><span class="pg">' + esc(T.glyph(t, side, settings.pieceSet)) + '</span></i></div>';
+    el.className = 'piece' + (t >= 9 ? ' pro' : '');
+    const size = letters ? (g.length > 1 ? 30 : 40) : 52;
+    const y = letters ? 55 : 54 - size * 0.06;
+    el.innerHTML = '<svg viewBox="0 0 84 100" preserveAspectRatio="xMidYMid meet" aria-hidden="true">'
+      + '<path class="pe" d="M42 1.5 73 18.5 82.5 98.5H1.5L11 18.5Z"/>'
+      + '<path class="pf" d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z"/>'
+      + '<path class="ps" d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z"/>'
+      + '<path class="pgr" d="M17 36Q42 30 74 38M14 56Q44 50 77 58M11 76Q42 71 79 78"/>'
+      + '<path class="phl" d="M14.4 21.2 42 6.2 69.6 21.2"/>'
+      + '<text class="pg" x="42" y="' + y.toFixed(1) + '" font-size="' + size + '" text-anchor="middle" dominant-baseline="central">' + esc(g) + '</text></svg>';
     return el;
   }
   function applyTheme() {
@@ -861,8 +872,8 @@
     const pv = $('#pieceSets'), bv = $('#boardThemes');
     pv.innerHTML = T.PIECE_SETS.map((s) => '<button type="button" class="sw" data-ps="' + s.id + '" aria-pressed="' + (s.id === settings.pieceSet) + '" title="' + esc(s.note) + '"><span class="pv ps-' + s.id + (s.glyph === 'letters' ? ' letters' : '') + ' bt-kaya"></span><span>' + s.name + '</span></button>').join('');
     $$('#pieceSets .pv').forEach((el, i) => {
-      const s = T.PIECE_SETS[i], pe = pieceEl.call(null, 8);
-      pe.querySelector('.pg').textContent = T.glyph(8, 0, s.id); pe.dataset.up = '1'; el.appendChild(pe);
+      const s = T.PIECE_SETS[i], pe = pieceEl(8, s.id);
+      pe.dataset.up = '1'; el.appendChild(pe);
     });
     bv.innerHTML = T.BOARD_THEMES.map((s) => '<button type="button" class="sw" data-bt="' + s.id + '" aria-pressed="' + (s.id === settings.boardTheme) + '"><span class="bv bt-' + s.id + '"></span><span>' + s.name + '</span></button>').join('');
     $('#sHints').checked = settings.hints; $('#sCoords').checked = settings.coords; $('#sSound').checked = settings.sound; $('#sFlip').checked = settings.autoFlip;

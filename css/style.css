@@ -83,13 +83,13 @@ h1, h2, h3 { font-family: var(--font-mincho); margin: 0; font-weight: 800; }
 .btn.small { padding: 5px 11px; font-size: 13px; }
 
 /* ---------- ホーム ---------- */
-.hero { display: grid; grid-template-columns: auto 1fr; align-items: end; gap: 6px 26px; padding: 14px 4px 26px; }
+.hero { display: grid; grid-template-columns: 1fr; justify-items: center; text-align: center; gap: 14px; padding: 14px 4px 26px; }
 .hero-logo { display: flex; flex-direction: column; gap: 16px; align-items: center; margin: 0; color: var(--ai); }
 .hero-seal { width: clamp(120px, 18vw, 168px); height: auto; filter: drop-shadow(0 6px 10px rgba(36,59,83,.18)); }
 .hero-e { font-family: var(--font-krs); font-size: 17px; letter-spacing: .7em; margin-right: -.7em; color: var(--muted); font-weight: 400; }
-.hero-sub { margin: 0 0 8px; font-size: clamp(16px, 2.4vw, 20px); max-width: 24em; text-wrap: balance; font-family: var(--font-mincho); font-weight: 500; line-height: 1.8; }
+.hero-sub { margin: 0 auto 8px; font-size: clamp(16px, 2.4vw, 20px); max-width: 24em; text-wrap: balance; font-family: var(--font-mincho); font-weight: 500; line-height: 1.8; }
 
-.entries { display: grid; grid-template-columns: repeat(3, minmax(0, 190px)); gap: 18px; margin-bottom: 30px; }
+.entries { display: grid; grid-template-columns: repeat(3, minmax(0, 190px)); justify-content: center; gap: 18px; margin-bottom: 30px; }
 .tile {
   --tile-edge: #8a6228;
   position: relative; border: 0; padding: 0; background: none; text-align: center; color: var(--ink);
@@ -98,11 +98,11 @@ h1, h2, h3 { font-family: var(--font-mincho); margin: 0; font-weight: 800; }
 }
 .tile::before {
   content: ""; position: absolute; inset: 0; background: var(--tile-edge);
-  clip-path: polygon(50% 0, 91% 15%, 100% 100%, 0 100%, 9% 15%);
+  clip-path: polygon(50% 0, 88% 17%, 100% 100%, 0 100%, 12% 17%);
 }
 .tile::after {
   content: ""; position: absolute; inset: 2.5% 2.2% 2% 2.2%;
-  clip-path: polygon(50% 0, 91% 15%, 100% 100%, 0 100%, 9% 15%);
+  clip-path: polygon(50% 0, 88% 17%, 100% 100%, 0 100%, 12% 17%);
   background: linear-gradient(165deg, #f3d9a2, #dfb56b);
 }
 .tile > * { position: relative; z-index: 1; }
@@ -192,32 +192,32 @@ h1, h2, h3 { font-family: var(--font-mincho); margin: 0; font-weight: 800; }
 
 /* 駒 */
 .piece {
-  --pedge: #7d5822; --pf1: #f4dba5; --pf2: #deb26a; --ptxt: #1d1810; --ppro: #b8321c;
+  --pedge: #7d5822; --pf1: #f4dba5; --ptxt: #1d1810; --ppro: #b8321c; --pgrain: .10;
   --pfont: var(--font-piece);
-  position: absolute; inset: 6% 7% 4%; z-index: 2; filter: drop-shadow(0 .12em .1em rgba(40, 25, 5, .4));
+  position: absolute; inset: 4% 0; z-index: 2; filter: drop-shadow(0 .1em .09em rgba(40, 25, 5, .42));
   pointer-events: none;
 }
+.piece svg { display: block; width: 100%; height: 100%; overflow: visible; }
 .piece[data-up="0"] { transform: rotate(180deg); }
-.pface, .pface i { position: absolute; clip-path: polygon(50% 0, 91% 16%, 100% 100%, 0 100%, 9% 16%); }
-.pface { inset: 0; background: var(--pedge); }
-.pface i { inset: 3% 3% 2.4%; background: linear-gradient(165deg, var(--pf1), var(--pf2)); display: grid; place-items: center; }
-.pg { font-family: var(--pfont); font-weight: 700; font-size: calc(var(--cell) * 0.5); line-height: 1; color: var(--ptxt); margin-top: 22%; font-style: normal; white-space: nowrap; }
-.piece.pro .pg { color: var(--ppro); }
-.hp .pg { font-size: calc(var(--cell) * 0.42); }
-.letters .pg { font-family: var(--font-body); font-weight: 700; font-size: calc(var(--cell) * 0.36); letter-spacing: -.02em; margin-top: 26%; }
-.hp .letters .pg, .letters .hp .pg { font-size: calc(var(--cell) * 0.3); }
+.piece .pe { fill: var(--pedge); stroke: var(--pedge); stroke-width: 3; stroke-linejoin: round; }
+.piece .pf { fill: var(--pf1); stroke: var(--pf1); stroke-width: 1.6; stroke-linejoin: round; }
+.piece .ps { fill: url(#pcShade); stroke: url(#pcShade); stroke-width: 1.6; stroke-linejoin: round; }
+.piece .pgr { fill: none; stroke: #5b3a10; stroke-width: .8; stroke-linecap: round; opacity: var(--pgrain); }
+.piece .phl { fill: none; stroke: #fff; stroke-width: 1; stroke-linecap: round; stroke-linejoin: round; opacity: .38; }
+.piece .pg { font-family: var(--pfont); font-weight: 400; fill: var(--ptxt); stroke: var(--ptxt); stroke-width: .9; paint-order: stroke; font-style: normal; }
+.piece.pro .pg { fill: var(--ppro); stroke: var(--ppro); }
+.letters .pg { font-family: var(--font-body); font-weight: 700; stroke-width: .3; }
 .cell.just .piece { animation: place .16s ease-out; }
 @keyframes place { from { transform: translateY(-5%) scale(1.1); } to { transform: none; } }
 .cell.just .piece[data-up="0"] { animation-name: place0; }
 @keyframes place0 { from { transform: rotate(180deg) translateY(-5%) scale(1.1); } to { transform: rotate(180deg); } }
 
 /* 駒の種類 */
-.ps-kaya { --p-edge: #7d5822; }
-.ps-ebony .piece { --pedge: #0e0b08; --pf1: #46382b; --pf2: #2a2018; --ptxt: #e8c868; --ppro: #ff9c6e; }
-.ps-shu .piece { --pedge: #5a1209; --pf1: #d8573a; --pf2: #b0361f; --ptxt: #fff1dc; --ppro: #ffe27a; }
-.ps-paper .piece { --pedge: #7f8d9a; --pf1: #fcfdfd; --pf2: #e6ecf0; --ptxt: #25405c; --ppro: #c43d22; --pfont: var(--font-mincho); }
-.ps-night .piece { --pedge: #6c86a8; --pf1: #2a3b52; --pf2: #1b2a3e; --ptxt: #d9ecff; --ppro: #ffb199; }
-.ps-letters .piece { --pedge: #6b4d1d; --pf1: #f1deb0; --pf2: #d9b66f; --ptxt: #1d1810; --ppro: #b8321c; }
+.ps-ebony .piece { --pedge: #0e0b08; --pf1: #3a2d22; --ptxt: #e8c868; --ppro: #ff9c6e; --pgrain: .22; }
+.ps-shu .piece { --pedge: #5a1209; --pf1: #c8472b; --ptxt: #fff1dc; --ppro: #ffe27a; --pgrain: 0; }
+.ps-paper .piece { --pedge: #7f8d9a; --pf1: #f3f6f8; --ptxt: #25405c; --ppro: #c43d22; --pfont: var(--font-mincho); --pgrain: 0; }
+.ps-night .piece { --pedge: #6c86a8; --pf1: #233349; --ptxt: #d9ecff; --ppro: #ffb199; --pgrain: 0; }
+.ps-letters .piece { --pedge: #6b4d1d; --pf1: #ecd49b; --ptxt: #1d1810; --ppro: #b8321c; }
 
 /* 盤の種類 */
 .bt-kaya {
@@ -358,7 +358,7 @@ dialog::backdrop { background: rgba(20, 32, 46, .55); }
 }
 @media (max-width: 560px) {
   .screen { padding-left: 10px; padding-right: 10px; }
-  .hero { grid-template-columns: auto; justify-items: start; }
+  
   .hero-logo { gap: 8px; }
   .tile b { font-size: 14px; } .tile small { font-size: 11px; }
   .level-list { grid-template-columns: repeat(5, 1fr); gap: 5px; }
