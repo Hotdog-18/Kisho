@@ -107,6 +107,16 @@
       o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.11);
     } catch (e) { /* 音が出せなくても続行 */ }
   }
+  // ブラウザ標準の confirm() は使えない環境があるので、画面内のダイアログで確認する
+  function ask(msg, okLabel) {
+    return new Promise((resolve) => {
+      const d = $('#dlgConfirm');
+      $('#confirmMsg').textContent = msg; $('#confirmOk').textContent = okLabel || 'OK';
+      d.returnValue = '';
+      d.addEventListener('close', () => resolve(d.returnValue === 'yes'), { once: true });
+      d.showModal();
+    });
+  }
   let toastTimer = 0;
   function toast(msg) {
     const el = $('#toast'); el.textContent = msg; el.classList.add('show');
@@ -614,7 +624,7 @@
     const act = b.dataset.act;
     if (act === 'flip') { G.flip = !G.flip; render(); }
     else if (act === 'resign') {
-      if (!confirm('投了しますか？')) return;
+      if (!(await ask('投了しますか？', '投了する'))) return;
       const loser = G.mode === 'local' ? G.game.pos.side : G.myColor;
       finish(loser === 0 ? 'white' : 'black', 'resign');
     } else if (act === 'undo') {
@@ -629,7 +639,7 @@
       const side = G.mode === 'local' ? G.game.pos.side : G.myColor;
       finish(side === 0 ? 'black' : 'white', 'impasse');
     } else if (act === 'kif') {
-      try { await navigator.clipboard.writeText(kifText()); toast('棋譜をコピーしました'); } catch (err) { prompt('棋譜 (コピーしてね)', kifText()); }
+      try { await navigator.clipboard.writeText(kifText()); toast('棋譜をコピーしました'); } catch (err) { toast('コピーできませんでした。「KIF保存」を使ってください'); }
     } else if (act === 'kifdl') {
       const blob = new Blob([kifText()], { type: 'text/plain;charset=utf-8' }), a = document.createElement('a');
       a.href = URL.createObjectURL(blob); a.download = 'kisho_' + new Date().toISOString().slice(0, 10) + '.kif'; a.click();
@@ -774,7 +784,7 @@
     if (!b) return;
     if (b.dataset.play) openRecord(b.dataset.play, false);
     else if (b.dataset.rv) openRecord(b.dataset.rv, true);
-    else if (b.dataset.del) { if (confirm('この棋譜を削除しますか？')) { records = records.filter((r) => r.id !== b.dataset.del); saveRecords(); renderHome(); } }
+    else if (b.dataset.del) { ask('この棋譜を削除しますか？', '削除する').then((yes) => { if (yes) { records = records.filter((r) => r.id !== b.dataset.del); saveRecords(); renderHome(); } }); }
   });
 
   function showAbout() {
@@ -874,8 +884,8 @@
     $(sel).addEventListener('change', (e) => { settings[key] = e.target.checked; saveSettings(); if (G && G.game) render(); else applyTheme(); });
   });
   $('#sName').addEventListener('change', (e) => { profile.name = e.target.value.trim().slice(0, 12) || 'あなた'; saveProfile(); renderMeChip(); });
-  $('#resetAll').addEventListener('click', () => {
-    if (!confirm('KRS・棋譜・設定をすべて削除します。よろしいですか？')) return;
+  $('#resetAll').addEventListener('click', async () => {
+    if (!(await ask('KRS・棋譜・設定をすべて削除します。よろしいですか？', 'すべて削除'))) return;
     try { Object.keys(localStorage).filter((k) => k.startsWith('kisho.')).forEach((k) => localStorage.removeItem(k)); } catch (e) { /* noop */ }
     location.reload();
   });
@@ -887,7 +897,7 @@
     else if (go === 'friend') openFriendDialog();
     else if (go === 'records') $('#recordsCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }));
-  $('#logoBtn').addEventListener('click', () => { if (G && G.mode !== 'review' && !G.over && G.game.moves.length > 0 && !confirm('対局を中断してホームへ戻りますか？')) return; goHome(); });
+  $('#logoBtn').addEventListener('click', async () => { if (G && G.mode !== 'review' && !G.over && G.game.moves.length > 0 && !(await ask('対局を中断してホームへ戻りますか？', '戻る'))) return; goHome(); });
   $('#settingsBtn').addEventListener('click', openSettings);
   $('#meChip').addEventListener('click', showAbout);
   $$('dialog').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d && d.id !== 'dlgPromote' && d.id !== 'dlgWait') d.close('cancel'); }));
@@ -895,7 +905,7 @@
   // 外部(room.js)向け
   window.KishoApp = {
     get G() { return G; }, set G(v) { G = v; }, S, K, T, store, esc, $, $$, toast, render, startGame, applyMove, finish, showScreen, selectTab, krsBadge,
-    getProfile: () => profile, saveProfile, TCS, tcById, CID, resultLine, goHome, REASON,
+    ask, getProfile: () => profile, saveProfile, TCS, tcById, CID, resultLine, goHome, REASON,
   };
 
   applyTheme(); renderHome();

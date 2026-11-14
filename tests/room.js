@@ -45,8 +45,7 @@ const errors = [];
   // 時計
   console.log('時計表示:', await blk.$$eval('.clock', (e) => e.map((x) => x.textContent)));
   // 投了 → 相手側にも結果
-  blk.once('dialog', (d) => d.accept());
-  await blk.click('[data-act="resign"]');
+  await blk.click('[data-act="resign"]'); await blk.click('#confirmOk');
   await wht.waitForSelector('#dlgResult[open]', { timeout: 5000 });
   console.log('相手側の結果:', (await wht.textContent('#resultBody')).replace(/\s+/g, ' ').slice(0, 80));
   await wht.screenshot({ path: 'out/shots/room-result.png' });

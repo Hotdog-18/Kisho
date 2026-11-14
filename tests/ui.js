@@ -32,8 +32,7 @@ const URL = 'http://localhost:8765/index.html';
   await page.screenshot({ path: 'out/shots/game1.png' });
 
   // 投了 → 結果
-  page.once('dialog', (d) => d.accept());
-  await page.click('[data-act="resign"]');
+  await page.click('[data-act="resign"]'); await page.click('#confirmOk');
   await page.waitForSelector('#dlgResult[open]');
   await page.waitForTimeout(200);
   console.log('result:', (await page.textContent('#resultBody')).replace(/\s+/g, ' ').slice(0, 200));
