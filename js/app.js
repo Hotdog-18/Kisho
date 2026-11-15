@@ -356,7 +356,7 @@
     const live = G.mode === 'ai' || G.mode === 'local' || G.mode === 'room';
     if (live && !G.over) {
       h += '<button class="btn" data-act="resign">投了</button>';
-      if (G.mode === 'ai') h += '<button class="btn" data-act="undo"' + (G.thinking || g.moves.length < 1 ? ' disabled' : '') + '>待った</button>';
+      if (G.mode === 'ai') h += '<button class="btn" data-act="undo"' + (G.thinking || g.moves.length < 1 ? ' disabled' : '') + '>待った</button><button class="btn" data-act="suspend"' + (g.moves.length < 1 ? ' disabled' : '') + '>保存して中断</button>';
       const side = G.mode === 'local' ? g.pos.side : G.myColor;
       if (g.pos.side === side && S.canDeclareImpasse(g.pos, side)) h += '<button class="btn primary" data-act="declare">入玉宣言</button>';
     }
@@ -716,6 +716,10 @@
     } else if (act === 'review') doReview();
     else if (act === 'again') rematch();
     else if (act === 'home') goHome();
+    else if (act === 'suspend') {
+      if (aiSaves().length >= MAX_SAVES) { toast('保存できる対局がいっぱい(' + MAX_SAVES + '局)です。ホームで1局削除してください'); return; }
+      if (saveAiGame()) { toast('保存しました。ホームの「中断中の対局」から再開できます'); goHome(); }
+    }
   });
 
   // ---------- 振り返り ----------

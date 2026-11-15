@@ -48,6 +48,13 @@ const ok = (c, m) => { if (!c) { console.log('NG:', m); process.exitCode = 1; } 
   await p.click('#logoBtn'); await p.waitForSelector('#dlgConfirm[open]'); await p.click('#confirmExtra'); await p.waitForTimeout(300);
   const after = await p.evaluate(() => JSON.parse(localStorage.getItem('kisho.aiSaves'))[0].moves.length);
   ok(after > before, '再開後に指して再保存できる (' + before + ' → ' + after + '手)');
+  // --- 対局画面の「保存して中断」ボタン ---
+  await p.click('[data-sdel]'); await p.click('#confirmOk'); await p.waitForTimeout(200);
+  await p.click('[data-go="ai"]'); await p.click('#aiStart'); await p.waitForTimeout(700);
+  ok(await p.locator('[data-act="suspend"]').isDisabled(), '0手のときは「保存して中断」ボタンが押せない');
+  await p.click(sq(6 * 9 + 2)); await p.click(sq(5 * 9 + 2)); await p.waitForTimeout(1500);
+  await p.click('[data-act="suspend"]'); await p.waitForTimeout(300);
+  ok(await p.locator('#home').isVisible() && await p.locator('#savedList li').count() === 1, 'ボタン1つで保存してホームへ(確認なし)');
   // --- 削除 ---
   await p.click('[data-sdel]'); await p.waitForSelector('#dlgConfirm[open]');
   ok((await p.textContent('#confirmNo')) === 'やめる', '他の確認では「やめる」のまま');
