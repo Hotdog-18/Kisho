@@ -97,30 +97,32 @@
 
   // ---------- 音 ----------
   let ac = null, noiseBuf = null, bus = null;
-  // 駒音「パチン!」: 鋭い打撃音(ノイズ)+ 駒の乾いた響き + 盤の低い共鳴 を重ねる
+  // 駒音「パシッ!」: 乾いた硬い木同士がぶつかる音。
+  // 音程が動く音(ピュウ)は使わず、ノイズを「木の固有振動」に当てて短く鳴らす。
   function clack() {
     if (!settings.sound) return;
     try {
       if (!ac) {
         ac = new (window.AudioContext || window.webkitAudioContext)();
-        const n = Math.floor(ac.sampleRate * 0.06); noiseBuf = ac.createBuffer(1, n, ac.sampleRate);
+        const n = Math.floor(ac.sampleRate * 0.08); noiseBuf = ac.createBuffer(1, n, ac.sampleRate);
         const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
-        bus = ac.createDynamicsCompressor(); bus.connect(ac.destination);
+        bus = ac.createDynamicsCompressor(); bus.threshold.value = -14; bus.ratio.value = 6; bus.connect(ac.destination);
       }
       if (ac.state === 'suspended') ac.resume();
-      const t = ac.currentTime + 0.003, v = 0.94 + Math.random() * 0.12; // 毎回わずかに音程を揺らす
-      // 1) 打撃の瞬間: 短いノイズ
-      const ns = ac.createBufferSource(); ns.buffer = noiseBuf;
-      const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200 * v; bp.Q.value = 0.9;
-      const ng = ac.createGain(); ng.gain.setValueAtTime(1.1, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
-      ns.connect(bp); bp.connect(ng); ng.connect(bus); ns.start(t); ns.stop(t + 0.06);
-      // 2) 駒の響き(カン高い木の音)と 3) 盤の共鳴(コッという低い音)
-      [['sine', 1500, 620, 0.55, 0.08], ['triangle', 420, 190, 0.5, 0.16]].forEach(([type, f0, f1, vol, dur]) => {
-        const o = ac.createOscillator(), g = ac.createGain();
-        o.type = type; o.frequency.setValueAtTime(f0 * v, t); o.frequency.exponentialRampToValueAtTime(f1 * v, t + dur * 0.7);
-        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.002); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
-        o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 0.02);
+      const t = ac.currentTime + 0.003, v = 0.96 + Math.random() * 0.08; // 毎回ほんの少し響きを揺らす
+      // [中心周波数Hz, Q(大きいほど硬く澄む), 音量, 減衰秒]  ← 硬い木の固有振動
+      const modes = [[1900, 14, 1.0, 0.045], [3100, 16, 0.85, 0.035], [4600, 18, 0.55, 0.025], [820, 9, 0.5, 0.06]];
+      modes.forEach(([f, q, vol, dur]) => {
+        const ns = ac.createBufferSource(); ns.buffer = noiseBuf;
+        const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f * v; bp.Q.value = q;
+        const g = ac.createGain(); g.gain.setValueAtTime(vol * 2.2, t); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        ns.connect(bp); bp.connect(g); g.connect(bus); ns.start(t); ns.stop(t + dur + 0.02);
       });
+      // ぶつかった瞬間の「パッ」というごく短い高域のクリック
+      const ck = ac.createBufferSource(); ck.buffer = noiseBuf;
+      const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 2500;
+      const cg = ac.createGain(); cg.gain.setValueAtTime(0.9, t); cg.gain.exponentialRampToValueAtTime(0.001, t + 0.012);
+      ck.connect(hp); hp.connect(cg); cg.connect(bus); ck.start(t); ck.stop(t + 0.03);
     } catch (e) { /* 音が出せなくても続行 */ }
   }
   // ブラウザ標準の confirm() は使えない環境があるので、画面内のダイアログで確認する
