@@ -38,6 +38,15 @@ body {
   font-family: var(--font-body); font-size: 15px; line-height: 1.6; font-weight: 500;
   min-height: 100dvh;
 }
+/* 和風の背景: 青海波と朱の日輪。上ほど濃く、下へ溶ける */
+.washi { position: fixed; inset: 0; z-index: -1; pointer-events: none; overflow: hidden; --wave: #243b53; --sun: #c43d22; }
+.washi-wave { position: absolute; inset: 0; color: var(--wave); opacity: .09;
+  -webkit-mask-image: linear-gradient(180deg, #000 0, rgba(0,0,0,.55) 40%, transparent 85%); mask-image: linear-gradient(180deg, #000 0, rgba(0,0,0,.55) 40%, transparent 85%); }
+.washi-sun { position: absolute; top: 70px; right: 9%; width: clamp(120px, 20vw, 240px); aspect-ratio: 1; border-radius: 50%; background: var(--sun); opacity: .10; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .washi { --wave: #c9d8e6; --sun: #e0573a; } :root:not([data-theme="light"]) .washi-wave { opacity: .07; } }
+:root[data-theme="dark"] .washi { --wave: #c9d8e6; --sun: #e0573a; }
+:root[data-theme="dark"] .washi-wave { opacity: .07; }
+@media (max-width: 560px) { .washi-sun { top: 64px; right: 6%; width: 110px; } }
 button, input, select { font: inherit; color: inherit; }
 button { cursor: pointer; }
 [hidden] { display: none !important; }
