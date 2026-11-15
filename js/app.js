@@ -106,16 +106,24 @@
       snd.play();
     } catch (e) { /* 音が出せなくても続行 */ }
   }
-  // ブラウザ標準の confirm() は使えない環境があるので、画面内のダイアログで確認する
-  function ask(msg, okLabel) {
+  // ブラウザ標準の confirm() は使えない環境があるので、画面内のダイアログで確認する。
+  // askEx は押されたボタンを 'yes' / 'no' / 'extra' で返す。ask は「yes か」だけを返す。
+  // o: { cancel: キャンセル側の文字, extra: 3つ目のボタンの文字, hint: 補足の文 }
+  function askEx(msg, okLabel, o) {
+    o = o || {};
     return new Promise((resolve) => {
       const d = $('#dlgConfirm');
       $('#confirmMsg').textContent = msg; $('#confirmOk').textContent = okLabel || 'OK';
+      $('#confirmNo').textContent = o.cancel || 'やめる';
+      const ex = $('#confirmExtra'); ex.hidden = !o.extra; ex.textContent = o.extra || '';
+      const hint = $('#confirmHint'); hint.hidden = !o.hint; hint.textContent = o.hint || '';
+      $('#confirmOk').classList.toggle('primary', !o.extra); // 3択のときは「保存して中断」を主ボタンにする
       d.returnValue = '';
-      d.addEventListener('close', () => resolve(d.returnValue === 'yes'), { once: true });
+      d.addEventListener('close', () => resolve(d.returnValue || 'no'), { once: true });
       d.showModal();
     });
   }
+  const ask = (msg, okLabel, o) => askEx(msg, okLabel, o).then((v) => v === 'yes');
   let toastTimer = 0;
   function toast(msg) {
     const el = $('#toast'); el.textContent = msg; el.classList.add('show');
@@ -544,6 +552,49 @@
     else if (G.mode === 'local') startLocalGame({ black: G.names[1], white: G.names[0], tc: G.tcId });
     else if (G.mode === 'room' && window.KishoRoom) window.KishoRoom.rematch();
   }
+  // ---------- AI対戦の中断・再開 ----------
+  const MAX_SAVES = 5;
+  const aiSaves = () => store.get('aiSaves', []);
+  function saveAiGame() {
+    const list = aiSaves();
+    if (!G || G.mode !== 'ai' || G.over || list.length >= MAX_SAVES) return false;
+    list.unshift({
+      id: 's' + Date.now().toString(36), savedAt: Date.now(),
+      myColor: G.myColor, level: G.level, tc: G.tc, tcId: G.tcId, names: G.names.slice(), krs: G.krs.slice(), aiSettings: G.aiSettings,
+      unrated: !!G.unrated, flip: G.flip, startSfen: G.game.startSfen || null,
+      moves: G.game.moves.slice(), times: G.times.slice(), clockMain: G.clock.main.slice(),
+      turnUsed: Math.max(0, (Date.now() - G.turnStart) / 1000), // 今の手番で使った秒数
+    });
+    store.set('aiSaves', list);
+    return true;
+  }
+  function resumeAiGame(id) {
+    const list = aiSaves(), s = list.find((x) => x.id === id);
+    if (!s) return;
+    AI.request('clear', {});
+    startGame({ mode: 'ai', myColor: s.myColor, level: s.level, tc: s.tc, tcId: s.tcId, names: s.names, krs: s.krs, aiSettings: s.aiSettings, startSfen: s.startSfen || undefined, flip: s.flip });
+    s.moves.forEach((m) => G.game.play(m));
+    G.times = s.times.slice(); G.clock.main = s.clockMain.slice(); G.unrated = !!s.unrated;
+    G.turnStart = Date.now() - s.turnUsed * 1000;
+    store.set('aiSaves', list.filter((x) => x.id !== id)); // 再開したら保存分は消える(また中断すれば新しく保存される)
+    render(); aiTurn();
+  }
+  function renderSaved() {
+    const list = aiSaves(), card = $('#savedCard');
+    card.hidden = !list.length;
+    $('#savedList').innerHTML = list.map((s) => {
+      const d = new Date(s.savedAt), lab = s.myColor === 0 ? '先手' : '後手';
+      return '<li><div class="rec-main">' + esc(s.names[s.myColor === 0 ? 1 : 0]) + ' と対局中 <span class="note">あなたは' + lab + '</span></div>' +
+        '<div class="rec-sub">' + (d.getMonth() + 1) + '/' + d.getDate() + ' ' + String(d.getHours()).padStart(2, '0') + ':' + String(d.getMinutes()).padStart(2, '0') + ' に中断 · ' + s.moves.length + '手</div>' +
+        '<div class="rec-acts"><button class="btn small primary" data-resume="' + s.id + '">再開</button><button class="btn small ghost" data-sdel="' + s.id + '" aria-label="削除">✕</button></div></li>';
+    }).join('');
+  }
+  $('#savedList').addEventListener('click', (e) => {
+    const b = e.target.closest('button');
+    if (!b) return;
+    if (b.dataset.resume) resumeAiGame(b.dataset.resume);
+    else if (b.dataset.sdel) ask('この中断中の対局を削除しますか？', '削除する').then((yes) => { if (yes) { store.set('aiSaves', aiSaves().filter((x) => x.id !== b.dataset.sdel)); renderSaved(); } });
+  });
   function goHome() {
     if (G && G.room && window.KishoRoom) window.KishoRoom.leave();
     G = null; showScreen('home');
@@ -778,7 +829,7 @@
     return '<svg viewBox="0 0 200 40" width="100%" height="40" preserveAspectRatio="none" aria-label="KRSの推移"><polyline points="' + pts + '" fill="none" stroke="var(--asagi)" stroke-width="2" vector-effect="non-scaling-stroke"/></svg>';
   }
   function renderHome() {
-    renderMeChip();
+    renderMeChip(); renderSaved();
     $('#krsCard').innerHTML =
       '<h2>あなたの KRS<span class="unofficial">独自</span></h2>' +
       '<div class="big"><span class="num">' + profile.krs + '</span><span class="lab">KRS</span></div>' +
@@ -921,7 +972,18 @@
     else if (go === 'friend') openFriendDialog();
     else if (go === 'records') $('#recordsCard').scrollIntoView({ behavior: 'smooth', block: 'center' });
   }));
-  $('#logoBtn').addEventListener('click', async () => { if (G && G.mode !== 'review' && !G.over && G.game.moves.length > 0 && !(await ask('対局を中断してホームへ戻りますか？', '戻る'))) return; goHome(); });
+  $('#logoBtn').addEventListener('click', async () => {
+    if (G && G.mode !== 'review' && !G.over && G.game.moves.length > 0) {
+      const canSave = G.mode === 'ai' && aiSaves().length < MAX_SAVES;
+      const r = await askEx('対局を打ち切りしてホームへ戻りますか？', '打ち切り', G.mode !== 'ai' ? { cancel: '戻る' } : {
+        cancel: '戻る', extra: canSave ? '保存して中断' : '',
+        hint: canSave ? '「保存して中断」なら、ホームから続きを再開できます。' : '中断して保存できる対局がいっぱい(' + MAX_SAVES + '局)です。ホームで1局削除すると保存できます。',
+      });
+      if (r === 'extra') { saveAiGame(); toast('保存しました。ホームの「中断中の対局」から再開できます'); }
+      else if (r !== 'yes') return;
+    }
+    goHome();
+  });
   $('#settingsBtn').addEventListener('click', openSettings);
   $('#meChip').addEventListener('click', showAbout);
   $$('dialog').forEach((d) => d.addEventListener('click', (e) => { if (e.target === d && d.id !== 'dlgPromote' && d.id !== 'dlgWait') d.close('cancel'); }));
