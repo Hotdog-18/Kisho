@@ -161,7 +161,7 @@
     const st = $('#stage'), set = T.PIECE_SETS.find((s) => s.id === settings.pieceSet) || T.PIECE_SETS[0];
     st.className = 'stage ps-' + settings.pieceSet + ' bt-' + settings.boardTheme + (set.glyph === 'letters' ? ' letters' : '') + (settings.coords ? '' : ' no-coords');
   }
-  function krsBadge(v) { return '<span class="krs" title="KRS (非公式)"><i>KRS</i><b>' + v + '</b></span>'; }
+  function krsBadge(v) { return '<span class="krs" title="KRS (独自)"><i>KRS</i><b>' + v + '</b></span>'; }
 
   function fmtClock(sec) {
     sec = Math.max(0, Math.ceil(sec));
@@ -528,7 +528,7 @@
     $('#resultBody').innerHTML =
       '<h2 class="res-head">' + esc(head) + '</h2>' +
       '<p>' + G.game.moves.length + '手 · ' + esc(REASON[o.reason] || o.reason) + '</p>' + krs +
-      '<p class="note">KRS は KISHO 独自の非公式レーティングです。</p>' +
+      '<p class="note">KRS は KISHO 独自のレーティングです。</p>' +
       '<div class="dlg-actions"><button class="btn" value="close">盤を見る</button><button class="btn" value="home">ホームへ</button><button class="btn" value="again">もう一局</button><button class="btn primary" value="review">AIで振り返る</button></div>';
     dlg.returnValue = '';
     if (!dlg.open) dlg.showModal();
@@ -769,7 +769,7 @@
   // ---------- ホーム ----------
   function renderMeChip() {
     $('#meChip').innerHTML = krsBadge(profile.krs);
-    $('#meChip').setAttribute('aria-label', 'KRS ' + profile.krs + ' (非公式)');
+    $('#meChip').setAttribute('aria-label', 'KRS ' + profile.krs + ' (独自)');
   }
   function sparkline() {
     const h = profile.history.slice(-30);
@@ -781,7 +781,7 @@
   function renderHome() {
     renderMeChip();
     $('#krsCard').innerHTML =
-      '<h2>あなたの KRS<span class="unofficial">非公式</span></h2>' +
+      '<h2>あなたの KRS<span class="unofficial">独自</span></h2>' +
       '<div class="big"><span class="num">' + profile.krs + '</span><span class="lab">KRS</span></div>' +
       '<div class="title-line">称号「' + K.title(profile.krs) + '」</div>' +
       '<div class="rec">' + profile.games + '局 · ' + profile.wins + '勝 ' + profile.losses + '敗 ' + profile.draws + '分</div>' + sparkline() +
@@ -810,7 +810,7 @@
     const dlg = $('#dlgAbout');
     $('#aboutBody').innerHTML =
       '<div class="about-krs">KRS<small>KISHO RATING SYSTEM · 棋匠レーティング</small></div>' +
-      '<div class="about-box"><b>非公式のレーティングです。</b>KISHO が独自に計算しているもので、日本将棋連盟などの公的な団体の段級位・レーティングとは関係ありません。</div>' +
+      '<div class="about-box"><b>KISHO 独自のレーティングです。</b>KISHO が計算しているもので、日本将棋連盟などの公的な団体の段級位・レーティングとは関係ありません。</div>' +
       '<p>チェスの Elo と同じ考え方で計算します。自分より強い相手に勝つと大きく上がり、弱い相手に負けると大きく下がります。</p>' +
       '<p class="note">期待勝率 E = 1 ÷ (1 + 10^((相手 − 自分) ÷ 400))<br>新しい KRS = 今の KRS + K × (結果 − E)<br>結果は 勝ち=1 / 引き分け=0.5 / 負け=0。K は 〜19局が40、20〜59局が28、60局〜が20。最初は ' + K.INITIAL + ' からスタートします。</p>' +
       '<table class="table-lv"><tr><th>AIレベル</th><th>名前</th><th>KRS (目安)</th></tr>' +
