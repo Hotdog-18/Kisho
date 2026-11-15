@@ -96,37 +96,14 @@
   const viewIdx = () => (G.view === null ? G.game.moves.length : G.view);
 
   // ---------- 音 ----------
-  let ac = null, noiseBuf = null, bus = null;
-  // 駒音「パシッ!」: 乾いた硬い木同士がぶつかる音。
-  // 音程が動く音(ピュウ)は使わず、ノイズを「木の固有振動」に当てて短く鳴らす。
+  let ac = null, snd = null;
+  // 駒音「パシッ!」の中身は js/sound.js
   function clack() {
     if (!settings.sound) return;
     try {
-      if (!ac) {
-        ac = new (window.AudioContext || window.webkitAudioContext)();
-        const n = Math.floor(ac.sampleRate * 0.08); noiseBuf = ac.createBuffer(1, n, ac.sampleRate);
-        const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
-        bus = ac.createDynamicsCompressor(); bus.threshold.value = -14; bus.ratio.value = 6; bus.connect(ac.destination);
-      }
+      if (!ac) { ac = new (window.AudioContext || window.webkitAudioContext)(); snd = window.KishoSound.create(ac); }
       if (ac.state === 'suspended') ac.resume();
-      const t = ac.currentTime + 0.003, v = 0.97 + Math.random() * 0.06; // 毎回ほんの少し響きを揺らす
-      // 打撃1回分: modes = [中心周波数Hz, Q(大きいほど硬く澄む), 音量, 減衰秒] を同時に鳴らし、最初に高域クリックを足す
-      const hit = (at, modes, click, gain) => {
-        modes.forEach(([f, q, vol, dur]) => {
-          const ns = ac.createBufferSource(); ns.buffer = noiseBuf;
-          const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = f * v; bp.Q.value = q;
-          const g = ac.createGain(); g.gain.setValueAtTime(vol * gain, at); g.gain.exponentialRampToValueAtTime(0.001, at + dur);
-          ns.connect(bp); bp.connect(g); g.connect(bus); ns.start(at); ns.stop(at + dur + 0.02);
-        });
-        const ck = ac.createBufferSource(); ck.buffer = noiseBuf;
-        const hp = ac.createBiquadFilter(); hp.type = 'highpass'; hp.frequency.value = 3500;
-        const cg = ac.createGain(); cg.gain.setValueAtTime(click, at); cg.gain.exponentialRampToValueAtTime(0.001, at + 0.01);
-        ck.connect(hp); hp.connect(cg); cg.connect(bus); ck.start(at); ck.stop(at + 0.03);
-      };
-      // 「パ」: 駒が盤に当たる、高くて鋭い一撃
-      hit(t, [[2900, 16, 1.0, 0.030], [4600, 18, 0.8, 0.022], [6800, 20, 0.5, 0.016]], 1.1, 2.4);
-      // 「シッ」: 約40ms後にもう一撃。さらに高く、少し長めに響く(駒が盤で弾んで止まる感じ)
-      hit(t + 0.04, [[3700, 20, 1.0, 0.055], [5600, 22, 0.8, 0.045], [7800, 24, 0.45, 0.03], [1500, 10, 0.35, 0.05]], 0.7, 2.2);
+      snd.play();
     } catch (e) { /* 音が出せなくても続行 */ }
   }
   // ブラウザ標準の confirm() は使えない環境があるので、画面内のダイアログで確認する

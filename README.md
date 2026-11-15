@@ -93,6 +93,7 @@ js/ai.js       探索AI (アルファベータ + 反復深化 + 置換表) と�
 js/krs.js      KRS の計算
 js/worker.js   AI を別スレッドで動かす
 js/themes.js   駒と盤のデザイン一覧 (見た目は css/style.css)
+js/sound.js    駒音「パシッ!」(録音を測って作成)。tools/sound-render.js で書き出して調整できる
 js/app.js      画面と対局の進行
 js/room.js     合言葉の部屋
 js/net.js      通信 (Supabase / 同じブラウザ内)
