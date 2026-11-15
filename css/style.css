@@ -12,9 +12,9 @@
   --shu: #c43d22;         /* 朱: 成り駒・最後の一手 */
   --yamabuki: #d6a21e;
   --ok: #2f8f6a; --good: #3a78b8; --slow: #c28a14; --doubt: #d2661f; --bad: #c43d22;
-  --font-body: "Zen Kaku Gothic New", "Hiragino Kaku Gothic ProN", "Yu Gothic", "Noto Sans CJK JP", "Noto Sans CJK TC", sans-serif;
-  --font-mincho: "Shippori Mincho B1", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", "Noto Serif CJK TC", serif;
-  --font-krs: "Zen Antique", "Shippori Mincho B1", "Noto Serif CJK JP", "Noto Serif CJK TC", serif;
+  --font-body: "Yuji Syuku", "Shippori Mincho B1", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", "Noto Serif CJK TC", serif;
+  --font-mincho: "Yuji Syuku", "Shippori Mincho B1", "Yu Mincho", "Hiragino Mincho ProN", "Noto Serif CJK JP", "Noto Serif CJK TC", serif;
+  --font-krs: "Yuji Syuku", "Zen Antique", "Shippori Mincho B1", "Noto Serif CJK JP", "Noto Serif CJK TC", serif;
   --font-piece: "Yuji Syuku", "Shippori Mincho B1", "Noto Serif CJK JP", "Noto Serif CJK TC", serif;
   --radius: 10px;
   --on-ai: #fff; --on-asagi: #fff; --asagi-hover: var(--asagi-ink); --toast-ink: var(--panel);
@@ -35,7 +35,7 @@
 html { -webkit-text-size-adjust: 100%; }
 body {
   margin: 0; background: var(--page); color: var(--ink);
-  font-family: var(--font-body); font-size: 15px; line-height: 1.6; font-weight: 500;
+  font-family: var(--font-body); font-size: 16px; line-height: 1.7; font-weight: 400; font-synthesis: none;
   min-height: 100dvh;
 }
 /* 和風の背景: 青海波と朱の日輪。上ほど濃く、下へ溶ける */
@@ -96,7 +96,7 @@ h1, h2, h3 { font-family: var(--font-mincho); margin: 0; font-weight: 800; }
 .hero-logo { display: flex; flex-direction: column; gap: 16px; align-items: center; margin: 0; color: var(--ai); }
 .hero-seal { width: clamp(120px, 18vw, 168px); height: auto; filter: drop-shadow(0 6px 10px rgba(36,59,83,.18)); }
 .hero-e { font-family: var(--font-krs); font-size: 17px; letter-spacing: .7em; margin-right: -.7em; color: var(--muted); font-weight: 400; }
-.hero-sub { margin: 0 auto 8px; font-size: clamp(16px, 2.4vw, 20px); max-width: 24em; text-wrap: balance; font-family: var(--font-mincho); font-weight: 500; line-height: 1.8; }
+.hero-sub { margin: 0 auto 8px; font-size: clamp(16px, 2.4vw, 20px); max-width: 30em; text-wrap: balance; font-family: var(--font-mincho); font-weight: 500; line-height: 1.8; }
 
 .entries { display: grid; grid-template-columns: repeat(3, minmax(0, 190px)); justify-content: center; gap: 18px; margin-bottom: 30px; }
 .tile {
