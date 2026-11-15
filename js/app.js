@@ -96,15 +96,31 @@
   const viewIdx = () => (G.view === null ? G.game.moves.length : G.view);
 
   // ---------- 音 ----------
-  let ac = null;
+  let ac = null, noiseBuf = null, bus = null;
+  // 駒音「パチン!」: 鋭い打撃音(ノイズ)+ 駒の乾いた響き + 盤の低い共鳴 を重ねる
   function clack() {
     if (!settings.sound) return;
     try {
-      ac = ac || new (window.AudioContext || window.webkitAudioContext)();
-      const t = ac.currentTime, o = ac.createOscillator(), g = ac.createGain();
-      o.type = 'triangle'; o.frequency.setValueAtTime(240, t); o.frequency.exponentialRampToValueAtTime(80, t + 0.06);
-      g.gain.setValueAtTime(0.32, t); g.gain.exponentialRampToValueAtTime(0.001, t + 0.1);
-      o.connect(g); g.connect(ac.destination); o.start(t); o.stop(t + 0.11);
+      if (!ac) {
+        ac = new (window.AudioContext || window.webkitAudioContext)();
+        const n = Math.floor(ac.sampleRate * 0.06); noiseBuf = ac.createBuffer(1, n, ac.sampleRate);
+        const d = noiseBuf.getChannelData(0); for (let i = 0; i < n; i++) d[i] = Math.random() * 2 - 1;
+        bus = ac.createDynamicsCompressor(); bus.connect(ac.destination);
+      }
+      if (ac.state === 'suspended') ac.resume();
+      const t = ac.currentTime + 0.003, v = 0.94 + Math.random() * 0.12; // 毎回わずかに音程を揺らす
+      // 1) 打撃の瞬間: 短いノイズ
+      const ns = ac.createBufferSource(); ns.buffer = noiseBuf;
+      const bp = ac.createBiquadFilter(); bp.type = 'bandpass'; bp.frequency.value = 3200 * v; bp.Q.value = 0.9;
+      const ng = ac.createGain(); ng.gain.setValueAtTime(1.1, t); ng.gain.exponentialRampToValueAtTime(0.001, t + 0.035);
+      ns.connect(bp); bp.connect(ng); ng.connect(bus); ns.start(t); ns.stop(t + 0.06);
+      // 2) 駒の響き(カン高い木の音)と 3) 盤の共鳴(コッという低い音)
+      [['sine', 1500, 620, 0.55, 0.08], ['triangle', 420, 190, 0.5, 0.16]].forEach(([type, f0, f1, vol, dur]) => {
+        const o = ac.createOscillator(), g = ac.createGain();
+        o.type = type; o.frequency.setValueAtTime(f0 * v, t); o.frequency.exponentialRampToValueAtTime(f1 * v, t + dur * 0.7);
+        g.gain.setValueAtTime(0.0001, t); g.gain.linearRampToValueAtTime(vol, t + 0.002); g.gain.exponentialRampToValueAtTime(0.001, t + dur);
+        o.connect(g); g.connect(bus); o.start(t); o.stop(t + dur + 0.02);
+      });
     } catch (e) { /* 音が出せなくても続行 */ }
   }
   // ブラウザ標準の confirm() は使えない環境があるので、画面内のダイアログで確認する
