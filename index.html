@@ -25,6 +25,14 @@
       <stop offset=".45" stop-color="#fff" stop-opacity="0"/>
       <stop offset="1" stop-color="#000" stop-opacity=".20"/>
     </linearGradient>
+    <linearGradient id="tileWood" x1="0" y1="0" x2="0.4" y2="1">
+      <stop offset="0" stop-color="#f7e2ae"/><stop offset=".55" stop-color="#ebc884"/><stop offset="1" stop-color="#d9ac62"/>
+    </linearGradient>
+    <filter id="tileGrain" x="0" y="0" width="100%" height="100%">
+      <feTurbulence type="fractalNoise" baseFrequency="0.22 0.012" numOctaves="3" seed="11"/>
+      <feColorMatrix values="0 0 0 0 .40  0 0 0 0 .24  0 0 0 0 .07  3.2 0 0 0 -1.35"/>
+    </filter>
+    <clipPath id="tileFace"><path d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z"/></clipPath>
     <symbol id="seal" viewBox="0 0 100 100">
       <g filter="url(#sealRough)">
         <rect x="5" y="5" width="90" height="90" rx="6" fill="#c43d22"/>
@@ -65,9 +73,9 @@
     </div>
 
     <div class="entries">
-      <button class="tile" data-go="ai"><span class="tile-g">能</span><b>AIと指す</b><small>10段階の強さ</small></button>
-      <button class="tile" data-go="friend"><span class="tile-g">友</span><b>友達と指す</b><small>合言葉の部屋</small></button>
-      <button class="tile" data-go="records"><span class="tile-g">譜</span><b>棋譜</b><small>再生と振り返り</small></button>
+      <button class="tile" data-go="ai"><svg class="tile-bg" viewBox="0 0 84 103" preserveAspectRatio="none" aria-hidden="true"><path d="M42 1.5 73 18.5 82.5 98.5H1.5L11 18.5Z" transform="translate(0 3)" fill="#5a3f14" stroke="#5a3f14" stroke-width="3" stroke-linejoin="round"/><path d="M42 1.5 73 18.5 82.5 98.5H1.5L11 18.5Z" fill="var(--tile-edge)" stroke="var(--tile-edge)" stroke-width="3" stroke-linejoin="round"/><path d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z" fill="url(#tileWood)" stroke="url(#tileWood)" stroke-width="1.6" stroke-linejoin="round"/><g clip-path="url(#tileFace)"><rect x="0" y="0" width="84" height="100" filter="url(#tileGrain)" opacity=".5"/></g><path d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z" fill="url(#pcShade)" stroke="url(#pcShade)" stroke-width="1.6" stroke-linejoin="round"/><path d="M14.4 21.2 42 6.2 69.6 21.2" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/><path d="M69.6 21.2 78 94H6" fill="none" stroke="#3a2406" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".22"/></svg><span class="tile-g">能</span><b>AIと指す</b><small>10段階の強さ</small></button>
+      <button class="tile" data-go="friend"><svg class="tile-bg" viewBox="0 0 84 103" preserveAspectRatio="none" aria-hidden="true"><path d="M42 1.5 73 18.5 82.5 98.5H1.5L11 18.5Z" transform="translate(0 3)" fill="#5a3f14" stroke="#5a3f14" stroke-width="3" stroke-linejoin="round"/><path d="M42 1.5 73 18.5 82.5 98.5H1.5L11 18.5Z" fill="var(--tile-edge)" stroke="var(--tile-edge)" stroke-width="3" stroke-linejoin="round"/><path d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z" fill="url(#tileWood)" stroke="url(#tileWood)" stroke-width="1.6" stroke-linejoin="round"/><g clip-path="url(#tileFace)"><rect x="0" y="0" width="84" height="100" filter="url(#tileGrain)" opacity=".5"/></g><path d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z" fill="url(#pcShade)" stroke="url(#pcShade)" stroke-width="1.6" stroke-linejoin="round"/><path d="M14.4 21.2 42 6.2 69.6 21.2" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/><path d="M69.6 21.2 78 94H6" fill="none" stroke="#3a2406" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".22"/></svg><span class="tile-g">友</span><b>友達と指す</b><small>合言葉の部屋</small></button>
+      <button class="tile" data-go="records"><svg class="tile-bg" viewBox="0 0 84 103" preserveAspectRatio="none" aria-hidden="true"><path d="M42 1.5 73 18.5 82.5 98.5H1.5L11 18.5Z" transform="translate(0 3)" fill="#5a3f14" stroke="#5a3f14" stroke-width="3" stroke-linejoin="round"/><path d="M42 1.5 73 18.5 82.5 98.5H1.5L11 18.5Z" fill="var(--tile-edge)" stroke="var(--tile-edge)" stroke-width="3" stroke-linejoin="round"/><path d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z" fill="url(#tileWood)" stroke="url(#tileWood)" stroke-width="1.6" stroke-linejoin="round"/><g clip-path="url(#tileFace)"><rect x="0" y="0" width="84" height="100" filter="url(#tileGrain)" opacity=".5"/></g><path d="M42 6.2 69.6 21.2 78 94H6L14.4 21.2Z" fill="url(#pcShade)" stroke="url(#pcShade)" stroke-width="1.6" stroke-linejoin="round"/><path d="M14.4 21.2 42 6.2 69.6 21.2" fill="none" stroke="#fff" stroke-width="1.2" stroke-linecap="round" stroke-linejoin="round" opacity=".5"/><path d="M69.6 21.2 78 94H6" fill="none" stroke="#3a2406" stroke-width="1" stroke-linecap="round" stroke-linejoin="round" opacity=".22"/></svg><span class="tile-g">譜</span><b>棋譜</b><small>再生と振り返り</small></button>
     </div>
 
     <div class="home-grid">
