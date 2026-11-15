@@ -13,7 +13,7 @@
     set(k, v) { try { localStorage.setItem('kisho.' + k, JSON.stringify(v)); } catch (e) { /* 容量超過など */ } },
   };
   let profile = Object.assign({ name: 'あなた', krs: K.INITIAL, games: 0, wins: 0, losses: 0, draws: 0, history: [] }, store.get('profile', {}));
-  let settings = Object.assign({ pieceSet: 'kaya', boardTheme: 'kaya', hints: true, coords: true, sound: true, autoFlip: true }, store.get('settings', {}));
+  let settings = Object.assign({ theme: 'auto', pieceSet: 'kaya', boardTheme: 'kaya', hints: true, coords: true, sound: true, autoFlip: true }, store.get('settings', {}));
   let records = store.get('records', []);
   const saveProfile = () => store.set('profile', profile);
   const saveSettings = () => store.set('settings', settings);
@@ -149,6 +149,14 @@
       + '<text class="pg" x="42" y="' + y.toFixed(1) + '" font-size="' + size + '" text-anchor="middle" dominant-baseline="central">' + esc(g) + '</text></svg>';
     return el;
   }
+  // 画面の明るさ: auto は機種(OS/ブラウザ)の設定に従う。light/dark は固定
+  function applyMode() {
+    const m = settings.theme, root = document.documentElement;
+    if (m === 'light' || m === 'dark') root.dataset.theme = m; else delete root.dataset.theme;
+    const dark = m === 'dark' || (m !== 'light' && window.matchMedia && matchMedia('(prefers-color-scheme: dark)').matches);
+    const tc = document.querySelector('meta[name="theme-color"]'); if (tc) tc.content = dark ? '#121b25' : '#e9eef1';
+  }
+  try { matchMedia('(prefers-color-scheme: dark)').addEventListener('change', applyMode); } catch (e) { /* 古いブラウザ */ }
   function applyTheme() {
     const st = $('#stage'), set = T.PIECE_SETS.find((s) => s.id === settings.pieceSet) || T.PIECE_SETS[0];
     st.className = 'stage ps-' + settings.pieceSet + ' bt-' + settings.boardTheme + (set.glyph === 'letters' ? ' letters' : '') + (settings.coords ? '' : ' no-coords');
@@ -876,9 +884,15 @@
       pe.dataset.up = '1'; el.appendChild(pe);
     });
     bv.innerHTML = T.BOARD_THEMES.map((s) => '<button type="button" class="sw" data-bt="' + s.id + '" aria-pressed="' + (s.id === settings.boardTheme) + '"><span class="bv bt-' + s.id + '"></span><span>' + s.name + '</span></button>').join('');
+    $$('#themeMode button').forEach((x) => x.setAttribute('aria-pressed', x.dataset.tm === settings.theme ? 'true' : 'false'));
     $('#sHints').checked = settings.hints; $('#sCoords').checked = settings.coords; $('#sSound').checked = settings.sound; $('#sFlip').checked = settings.autoFlip;
     $('#dlgSettings').showModal();
   }
+  $('#themeMode').addEventListener('click', (e) => {
+    const b = e.target.closest('[data-tm]'); if (!b) return;
+    settings.theme = b.dataset.tm; saveSettings(); applyMode();
+    $$('#themeMode button').forEach((x) => x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+  });
   $('#pieceSets').addEventListener('click', (e) => {
     const b = e.target.closest('[data-ps]'); if (!b) return;
     settings.pieceSet = b.dataset.ps; saveSettings();
@@ -919,7 +933,7 @@
     ask, getProfile: () => profile, saveProfile, TCS, tcById, CID, resultLine, goHome, REASON,
   };
 
-  applyTheme(); renderHome();
+  applyMode(); applyTheme(); renderHome();
   setTimeout(() => {
     const m = /[#&]r=([^&]+)/.exec(location.hash);
     if (m) { try { openFriendDialog(decodeURIComponent(m[1])); } catch (e) { /* noop */ } }
