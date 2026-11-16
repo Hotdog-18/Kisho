@@ -343,7 +343,6 @@ dialog::backdrop { background: rgba(20, 32, 46, .55); }
 .wait-h { display: flex; align-items: center; gap: 12px; }
 .spin { width: 20px; height: 20px; flex: none; border-radius: 50%; border: 3px solid var(--line); border-top-color: var(--asagi); animation: spin .9s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
-@media (prefers-reduced-motion: reduce) { .spin { animation-duration: 2.4s; } }
 .pulse { width: 10px; height: 10px; border-radius: 50%; background: var(--asagi); display: inline-block; animation: pulse 1.4s ease-in-out infinite; margin-right: 8px; }
 @keyframes pulse { 50% { opacity: .25; transform: scale(.7); } }
 
@@ -379,6 +378,8 @@ dialog::backdrop { background: rgba(20, 32, 46, .55); }
 }
 @media (prefers-reduced-motion: reduce) {
   *, *::before, *::after { animation: none !important; transition: none !important; }
+  /* 「待っている」ことを伝える丸だけは、動きを減らす設定でもゆっくり回す(止まると固まって見えるため) */
+  .spin { animation: spin 1.6s linear infinite !important; }
 }
 
 .rv-moves { margin: 0 -14px; max-height: 240px; overflow: auto; border-top: 1px solid var(--line); padding-top: 4px; }

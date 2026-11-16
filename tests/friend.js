@@ -15,6 +15,12 @@ const ok = (c, m) => { if (!c) { console.log('NG:', m); process.exitCode = 1; } 
   await p.waitForTimeout(250);
   const a2 = await p.evaluate(() => getComputedStyle(document.querySelector('.spin')).transform);
   ok(a1.startsWith('spin|') && a1.split('|')[1] !== a2, '丸いスピナーが回っている');
+  // 「動きを減らす」設定の機種でも回る
+  const p2 = await (await b.newContext({ reducedMotion: 'reduce' })).newPage();
+  await p2.goto('http://localhost:8765/index.html'); await p2.click('[data-go="friend"]'); await p2.fill('#fPass', 'x'); await p2.press('#fPass', 'Enter'); await p2.waitForTimeout(500);
+  const r1 = await p2.evaluate(() => getComputedStyle(document.querySelector('.spin')).transform); await p2.waitForTimeout(300);
+  const r2 = await p2.evaluate(() => getComputedStyle(document.querySelector('.spin')).transform);
+  ok(r1 !== r2, '「動きを減らす」設定でもスピナーが回る');
   await p.press('#waitBody input', 'Enter'); await p.waitForTimeout(300);
   ok(await p.evaluate(() => document.querySelector('#dlgWait').open), '招待リンク欄でEnterしても閉じない');
   await p.screenshot({ path: 'out/shots/wait.png' });
