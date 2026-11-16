@@ -907,6 +907,16 @@
     const async = $('#fStyle').value === 'async';
     $('#fTc').disabled = async; $('#fMailRow').hidden = !(async && window.KishoNet.configured);
   }
+  // Enterキーで送信すると、先頭の「やめる」が押されたことになって閉じてしまう。
+  // 入力欄でEnterを押したら、主ボタン(はじめる/対局開始)を押したことにする。
+  [['#friendForm', '#friendStart'], ['#dlgAi form', '#aiStart']].forEach(([form, btn]) => {
+    const f = $(form); if (!f) return;
+    f.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter' || e.isComposing || e.target.tagName !== 'INPUT') return;
+      e.preventDefault(); $(btn).click();
+    });
+  });
+  $('#waitBody').addEventListener('keydown', (e) => { if (e.key === 'Enter' && e.target.tagName === 'INPUT') e.preventDefault(); }); // 招待リンク欄のEnterで閉じない
   $('#friendMode').addEventListener('click', (e) => { const b = e.target.closest('button'); if (b) { friendMode = b.dataset.fm; syncFriendUi(); } });
   $('#fStyle').addEventListener('change', syncFriendUi);
   $('#friendForm').addEventListener('submit', (e) => {

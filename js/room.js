@@ -12,8 +12,8 @@
   function showWait(extra) {
     const dlg = $('#dlgWait');
     $('#waitBody').innerHTML =
-      '<h2>友達を待っています</h2>' +
-      '<p><span class="pulse"></span>合言葉「<b>' + esc(R.pass) + '</b>」で入室してもらってね。</p>' +
+      '<h2 class="wait-h"><span class="spin" role="status" aria-label="待機中"></span>相手方を待っています...</h2>' +
+      '<p>合言葉「<b>' + esc(R.pass) + '</b>」で入室してもらうべし。</p>' +
       '<div class="copyline"><input readonly value="' + esc(inviteLink(R.pass)) + '" aria-label="招待リンク"><button type="button" class="btn" id="copyInvite">リンクをコピー</button></div>' +
       (R.fallback ? '<p class="note">いまは「同じブラウザ内モード」です。同じブラウザの別タブで同じ合言葉を入れると対局できます。友達とつなぐには js/config.js の設定が必要です。</p>' : '') +
       (extra ? '<p class="note" style="color:var(--shu)">' + esc(extra) + '</p>' : '') +
