@@ -863,9 +863,18 @@
   function showAbout() {
     const dlg = $('#dlgAbout');
     $('#aboutBody').innerHTML =
-      '<div class="about-krs">KRS<small>KISHO RATING SYSTEM · 棋匠レーティング</small></div>' +
+      '<div class="about-krs">KRS<small>KISHO RATING SYSTEM</small></div>' +
       '<div class="about-box"><b>KISHO 独自のレーティングです。</b>KISHO が計算しているもので、日本将棋連盟などの公的な団体の段級位・レーティングとは関係ありません。</div>' +
       '<p>自分より強い相手に勝つと大きく上がり、弱い相手に負けると大きく下がります。最初は ' + K.INITIAL + ' からスタートします。</p>' +
+      '<h3 class="about-sec">あなたの称号</h3>' +
+      '<p class="note">あなたの KRS に応じて変わる呼び名です(いまの称号に色がついています)。</p>' +
+      '<table class="table-lv"><tr><th>称号</th><th>KRS</th></tr>' +
+      K.TITLES.map(([min, name], i) => {
+        const next = K.TITLES[i + 1], now = K.title(profile.krs) === name;
+        return '<tr' + (now ? ' class="now"' : '') + '><td>' + name + '</td><td>' + (min === 0 ? '' : min) + '〜' + (next ? next[0] - 1 : '') + '</td></tr>';
+      }).join('') + '</table>' +
+      '<h3 class="about-sec">AIの強さ</h3>' +
+      '<p class="note">「AIと指す」で選ぶ10段階です。KRS は、そのAIの強さの目安です。</p>' +
       '<table class="table-lv"><tr><th>AIレベル</th><th>名前</th><th>KRS (目安)</th></tr>' +
       LEVEL_NAMES.map((n, i) => '<tr><td>Lv' + (i + 1) + '</td><td>' + n + '</td><td>' + K.aiRating(i + 1) + '</td></tr>').join('') + '</table>' +
       '<p class="note">AIの KRS は、AI同士で対戦させた結果から出した目安です。' + '「待った」を使った対局や、同じ画面での対局は KRS に反映されません。</p>' +
