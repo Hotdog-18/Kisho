@@ -865,8 +865,7 @@
     $('#aboutBody').innerHTML =
       '<div class="about-krs">KRS<small>KISHO RATING SYSTEM · 棋匠レーティング</small></div>' +
       '<div class="about-box"><b>KISHO 独自のレーティングです。</b>KISHO が計算しているもので、日本将棋連盟などの公的な団体の段級位・レーティングとは関係ありません。</div>' +
-      '<p>チェスの Elo と同じ考え方で計算します。自分より強い相手に勝つと大きく上がり、弱い相手に負けると大きく下がります。</p>' +
-      '<p class="note">期待勝率 E = 1 ÷ (1 + 10^((相手 − 自分) ÷ 400))<br>新しい KRS = 今の KRS + K × (結果 − E)<br>結果は 勝ち=1 / 引き分け=0.5 / 負け=0。K は 〜19局が40、20〜59局が28、60局〜が20。最初は ' + K.INITIAL + ' からスタートします。</p>' +
+      '<p>自分より強い相手に勝つと大きく上がり、弱い相手に負けると大きく下がります。最初は ' + K.INITIAL + ' からスタートします。</p>' +
       '<table class="table-lv"><tr><th>AIレベル</th><th>名前</th><th>KRS (目安)</th></tr>' +
       LEVEL_NAMES.map((n, i) => '<tr><td>Lv' + (i + 1) + '</td><td>' + n + '</td><td>' + K.aiRating(i + 1) + '</td></tr>').join('') + '</table>' +
       '<p class="note">AIの KRS は、AI同士で対戦させた結果から出した目安です。' + '「待った」を使った対局や、同じ画面での対局は KRS に反映されません。</p>' +
