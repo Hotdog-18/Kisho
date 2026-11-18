@@ -876,6 +876,9 @@
       '<p class="note">「待った」を使った対局や、同じ画面での対局は KRS に反映されません。</p>' +
       '<div class="dlg-actions"><button class="btn primary" value="ok">閉じる</button></div>';
     dlg.showModal();
+    // 開いた直後は「閉じる」ボタンに自動でフォーカスが移り、下までスクロールされてしまう。先頭の「KRS」から見せる。
+    const top = $('#aboutBody .about-krs'); top.tabIndex = -1; top.focus({ preventScroll: true });
+    dlg.scrollTop = 0; $('#aboutBody').scrollTop = 0;
   }
 
   // ---------- 各ダイアログ ----------
