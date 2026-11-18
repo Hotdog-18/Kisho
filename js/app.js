@@ -873,11 +873,7 @@
         const next = K.TITLES[i + 1], now = K.title(profile.krs) === name;
         return '<tr' + (now ? ' class="now"' : '') + '><td>' + name + '</td><td>' + (min === 0 ? '' : min) + '〜' + (next ? next[0] - 1 : '') + '</td></tr>';
       }).join('') + '</table>' +
-      '<h3 class="about-sec">AIの強さ</h3>' +
-      '<p class="note">「AIと指す」で選ぶ10段階です。KRS は、そのAIの強さの目安です。</p>' +
-      '<table class="table-lv"><tr><th>AIレベル</th><th>名前</th><th>KRS (目安)</th></tr>' +
-      LEVEL_NAMES.map((n, i) => '<tr><td>Lv' + (i + 1) + '</td><td>' + n + '</td><td>' + K.aiRating(i + 1) + '</td></tr>').join('') + '</table>' +
-      '<p class="note">AIの KRS は、AI同士で対戦させた結果から出した目安です。' + '「待った」を使った対局や、同じ画面での対局は KRS に反映されません。</p>' +
+      '<p class="note">「待った」を使った対局や、同じ画面での対局は KRS に反映されません。</p>' +
       '<div class="dlg-actions"><button class="btn primary" value="ok">閉じる</button></div>';
     dlg.showModal();
   }
@@ -888,7 +884,7 @@
   }
   function openAiDialog() {
     const last = store.get('aiLast', { level: Math.max(1, [1,2,3,4,5,6,7,8,9,10].filter((l) => K.aiRating(l) <= profile.krs + 50).length), color: '0', tc: 'none' });
-    $('#levelList').innerHTML = LEVEL_NAMES.map((n, i) => '<label><input type="radio" name="lv" value="' + (i + 1) + '"' + (i + 1 === last.level ? ' checked' : '') + '><span><b>' + (i + 1) + '</b><small>' + n + '</small><small>' + K.aiRating(i + 1) + '</small></span></label>').join('');
+    $('#levelList').innerHTML = LEVEL_NAMES.map((n, i) => '<label><input type="radio" name="lv" value="' + (i + 1) + '"' + (i + 1 === last.level ? ' checked' : '') + '><span><b>' + n + '</b></span></label>').join('');
     $('#aiColor').value = last.color; fillTc($('#aiTc'), last.tc);
     $('#dlgAi').showModal();
   }

@@ -302,8 +302,8 @@ dialog::backdrop { background: rgba(20, 32, 46, .55); }
 .level-list { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
 .level-list label { display: block; font-size: 13px; color: var(--ink); }
 .level-list input { position: absolute; opacity: 0; pointer-events: none; }
-.level-list span { display: grid; gap: 1px; justify-items: center; text-align: center; padding: 8px 2px; border: 1px solid var(--line); border-radius: 10px; background: var(--page); cursor: pointer; line-height: 1.3; }
-.level-list b { font-family: var(--font-mincho); font-size: 17px; }
+.level-list span { display: grid; gap: 1px; justify-items: center; text-align: center; padding: 14px 2px; border: 1px solid var(--line); border-radius: 10px; background: var(--page); cursor: pointer; line-height: 1.3; }
+.level-list b { font-family: var(--font-mincho); font-size: 17px; font-weight: 400; color: var(--ink); }
 .level-list small { color: var(--muted); font-size: 11.5px; }
 .level-list input:checked + span { border-color: var(--asagi); background: color-mix(in srgb, var(--asagi) 14%, var(--page)); box-shadow: 0 0 0 2px color-mix(in srgb, var(--asagi) 40%, transparent); }
 .level-list input:focus-visible + span { outline: 3px solid var(--asagi); }
@@ -369,8 +369,7 @@ dialog::backdrop { background: rgba(20, 32, 46, .55); }
   .hero-logo { gap: 8px; }
   .tile b { font-size: 14px; } .tile small { font-size: 11px; }
   .level-list { grid-template-columns: repeat(5, 1fr); gap: 5px; }
-  .level-list b { font-size: 15px; }
-  .level-list small { font-size: 10px; }
+  .level-list b { font-size: 14px; }
   .row2 { grid-template-columns: 1fr; }
   .pname b { max-width: 6.5em; }
   .clock { font-size: 21px; }
