@@ -341,8 +341,11 @@
     const ol = $('#moveList');
     ol.innerHTML = movesHtml();
     const cur = ol.querySelector('[aria-current="true"]');
-    if (cur && !$('#paneMoves').hidden) cur.scrollIntoView({ block: 'nearest' });
-    else if (G.view === null) ol.parentElement.scrollTop = ol.parentElement.scrollHeight;
+    // ページ全体ではなく、棋譜の枠の中だけをスクロールする(scrollIntoView だと、縦長の画面で盤が画面外へ押し出される)
+    if (cur && !$('#paneMoves').hidden) {
+      const c = ol.parentElement, cr = c.getBoundingClientRect(), r = cur.getBoundingClientRect();
+      if (r.top < cr.top) c.scrollTop += r.top - cr.top; else if (r.bottom > cr.bottom) c.scrollTop += r.bottom - cr.bottom;
+    } else if (G.view === null) ol.parentElement.scrollTop = ol.parentElement.scrollHeight;
   }
   function resultLine(o) {
     const why = REASON[o.reason] || o.reason;
