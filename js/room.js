@@ -15,7 +15,9 @@
       '<h2 class="wait-h"><span class="spin" role="status" aria-label="待機中"></span>相手方を待っています...</h2>' +
       '<p>合言葉「<b>' + esc(R.pass) + '</b>」で入室してもらうべし。</p>' +
       '<div class="copyline"><input readonly value="' + esc(inviteLink(R.pass)) + '" aria-label="招待リンク"><button type="button" class="btn" id="copyInvite">リンクをコピー</button></div>' +
-      (R.fallback ? '<p class="note">いまは「同じブラウザ内モード」です。同じブラウザの別タブで同じ合言葉を入れると対局できます。友達とつなぐには js/config.js の設定が必要です。</p>' : '') +
+      (R.fallback ? (N.configured
+        ? '<p class="note" style="color:var(--shu)">サーバーにつながりませんでした。いまは「同じブラウザ内モード」で、友達とは対局できません。ネットの接続を確認して、もう一度ためしてください。(原因を調べるページ: <a href="check.html">接続チェック</a>)</p>'
+        : '<p class="note">いまは「同じブラウザ内モード」です。同じブラウザの別タブで同じ合言葉を入れると対局できます。友達とつなぐには js/config.js の設定が必要です。</p>') : '') +
       (extra ? '<p class="note" style="color:var(--shu)">' + esc(extra) + '</p>' : '') +
       '<div class="dlg-actions"><button class="btn ghost" value="cancel">やめる</button></div>';
     $('#copyInvite').onclick = async () => {
@@ -23,21 +25,31 @@
     };
     if (!dlg.open) dlg.showModal();
   }
+  let joinSeq = 0, connecting = false, quietClose = false;
   $('#dlgWait').addEventListener('close', () => {
+    if (quietClose) { quietClose = false; return; }
+    if (connecting) { joinSeq++; connecting = false; A.goHome(); return; } // 接続中にやめた
     if (R && !R.started) { leave(); A.goHome(); }
   });
+  function showConnecting() {
+    $('#waitBody').innerHTML = '<h2 class="wait-h"><span class="spin" role="status" aria-label="接続中"></span>接続しています...</h2>' +
+      '<p class="note">サーバーに入室の準備をしています。</p><div class="dlg-actions"><button class="btn ghost" value="cancel">やめる</button></div>';
+    const dlg = $('#dlgWait'); if (!dlg.open) dlg.showModal();
+  }
 
   async function join(o) {
     leave();
-    A.toast('接続しています…');
+    const my = ++joinSeq; connecting = true; showConnecting();
     const conn = await N.connect(o.pass);
+    if (my !== joinSeq) { try { conn.transport.close(); } catch (e) { /* noop */ } return; } // 接続中にやめられた
+    connecting = false;
     R = {
       id: tabId(), cid: A.CID, name: o.name, pass: o.pass, style: o.style, tcId: o.style === 'async' ? 'none' : o.tc, mail: o.mail,
       key: conn.key, t: conn.transport, fallback: conn.fallback, peer: null, started: false, gid: null, timer: null, poll: null,
       async: o.style === 'async', rematch: { me: false, peer: false }, waiting: false,
     };
     R.t.onmessage = onNet;
-    if (R.async) { await joinAsync(); return; }
+    if (R.async) { const d = $('#dlgWait'); if (d.open) { quietClose = true; d.close('async'); } await joinAsync(); return; } // 通信将棋は待機画面を使わない
     showWait();
     announce();
     R.timer = setInterval(announce, 2500);

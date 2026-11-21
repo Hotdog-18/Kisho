@@ -8,7 +8,15 @@
   'use strict';
   const cfg = root.KISHO_CONFIG || {};
   const configured = !!(cfg.supabaseUrl && cfg.supabaseAnonKey);
-  const SUPABASE_JS = 'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js';
+  // 接続ライブラリ。新しい形式のキー(sb_publishable_…)に対応した新しい版を先に試し、読めなければ古い版へ切り替える。
+  const SUPABASE_JS = [
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.3/dist/umd/supabase.min.js',
+    'https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.min.js',
+    'https://unpkg.com/@supabase/supabase-js@2.45.4/dist/umd/supabase.js',
+  ];
+  // 新しい形式のキー(sb_…)は apikey ヘッダーだけで送る。古い形式(JWT)は Authorization にも入れる
+  const authHeaders = () => Object.assign({ apikey: cfg.supabaseAnonKey, 'Content-Type': 'application/json' },
+    /^sb_/.test(cfg.supabaseAnonKey || '') ? {} : { Authorization: 'Bearer ' + cfg.supabaseAnonKey });
 
   async function sha(text) {
     try {
@@ -21,13 +29,18 @@
     }
   }
 
-  function loadScript(src) {
+  function loadOne(src) {
     return new Promise((res, rej) => {
-      if (root.supabase) return res();
       const s = document.createElement('script');
-      s.src = src; s.onload = res; s.onerror = () => rej(new Error('script load failed'));
+      s.src = src; s.onload = () => (root.supabase ? res() : rej(new Error('not defined'))); s.onerror = () => rej(new Error('script load failed'));
       document.head.appendChild(s);
     });
+  }
+  async function loadScript(srcs) {
+    if (root.supabase) return;
+    let last;
+    for (const src of srcs) { try { await loadOne(src); return; } catch (e) { last = e; } }
+    throw last;
   }
 
   class LocalTransport {
@@ -77,7 +90,7 @@
   // ---- 通信将棋の保存 (supabase/schema.sql の関数を呼ぶ。表に直接は触れない) ----
   const rpc = (name, body) => fetch(cfg.supabaseUrl + '/rest/v1/rpc/' + name, {
     method: 'POST',
-    headers: { apikey: cfg.supabaseAnonKey, Authorization: 'Bearer ' + cfg.supabaseAnonKey, 'Content-Type': 'application/json' },
+    headers: authHeaders(),
     body: JSON.stringify(body),
   });
   const games = {
@@ -104,12 +117,12 @@
     try {
       const r = await fetch(cfg.supabaseUrl + '/functions/v1/notify', {
         method: 'POST',
-        headers: { apikey: cfg.supabaseAnonKey, Authorization: 'Bearer ' + cfg.supabaseAnonKey, 'Content-Type': 'application/json' },
+        headers: authHeaders(),
         body: JSON.stringify(body),
       });
       return r.ok;
     } catch (e) { return false; }
   }
 
-  root.KishoNet = { configured, connect, sha, games, notify };
+  root.KishoNet = { configured, connect, sha, games, notify, _rpc: rpc };
 })(window);
