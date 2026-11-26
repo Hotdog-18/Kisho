@@ -334,7 +334,7 @@
       const dot = pl && !pl.forced ? '<span class="gdot g-' + pl.grade + '" title="' + pl.gradeName + '"></span>' : '';
       html += '<li data-i="' + (i + 1) + '"' + (idx === i + 1 ? ' aria-current="true"' : '') + '><span class="mn">' + (i + 1) + '</span>' + esc(g.texts[i]) + dot + '</li>';
     }
-    if (G.over) html += '<li class="start" style="color:var(--ink)">' + esc(resultLine(G.over)) + '</li>';
+    if (G.over) html += '<li class="start" style="color:var(--ink)">' + esc(resultLine(G.over, G.names)) + '</li>';
     return html;
   }
   function renderMoves() {
@@ -347,10 +347,12 @@
       if (r.top < cr.top) c.scrollTop += r.top - cr.top; else if (r.bottom > cr.bottom) c.scrollTop += r.bottom - cr.bottom;
     } else if (G.view === null) ol.parentElement.scrollTop = ol.parentElement.scrollHeight;
   }
-  function resultLine(o) {
+  // 例: 「先手（ひろ）の勝ち (投了)」。名前が先手/後手のままのとき(同じ画面の対局など)は、名前を付けない
+  function resultLine(o, names) {
     const why = REASON[o.reason] || o.reason;
     if (o.result === 'draw') return '引き分け (' + why + ')';
-    return (o.result === 'black' ? '先手' : '後手') + 'の勝ち (' + why + ')';
+    const side = o.result === 'black' ? 0 : 1, lab = side === 0 ? '先手' : '後手', nm = names && names[side];
+    return lab + (nm && nm !== lab ? '（' + nm + '）' : '') + 'の勝ち (' + why + ')';
   }
 
   function renderActions() {
